@@ -987,6 +987,8 @@ bool BMP::WriteBMPData(string StrOutputFile)
     Put4Byte(OutputStream, Header->InfoHeader->ImportanColors);
     //=========================================================================
 
+	unsigned long long TotalFileSize = 54;
+
     if( Header->InfoHeader->BitPerPixel == 24 )
     {
         for( int y=Header->InfoHeader->Height-1; y>=0; y-- )
@@ -994,10 +996,21 @@ bool BMP::WriteBMPData(string StrOutputFile)
             for( int x=0; x<Header->InfoHeader->Width; x++ )
             {
                 Put3Byte(OutputStream, RGBVector[x][y].ByteValue);
+				TotalFileSize = TotalFileSize + 3;
             }
-            for( int k=0; k<(4-(Header->InfoHeader->Width*3)%4)%4; k++ ) Put1Byte(OutputStream, 0x00);
+            for( int k=0; k<(4-(Header->InfoHeader->Width*3)%4)%4; k++ )
+			{
+				Put1Byte(OutputStream, 0x00);
+				TotalFileSize = TotalFileSize + 1;
+			}
         }
     }
+
+	// File size not 
+	for( int i=0; i<(Header->FileHeader->FileSize-TotalFileSize); i++ )
+	{
+		Put1Byte(OutputStream, 0x00);
+	}
 
     OutputStream.close();
 
